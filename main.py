@@ -1,6 +1,6 @@
 from cidades_map import CidadesMap
 from algoritmo_genetico import AlgoritmoGenetico
-import numpy as np
+import visual 
 
 if __name__ == '__main__':
     mapa = CidadesMap('cidades.mat')
@@ -10,8 +10,9 @@ if __name__ == '__main__':
     print("---------------------------------------------")
     print("Resultados do Algoritmo Genético:")
     print(f"Tamanho da População: {resultado['tamanhoPopulacao']}")
+    print(f"Número de Cidades: {mapa.num_cidades}")
 
-    print("População Inicial:")
+    print("\nPopulação Inicial:")
     for i, ind in enumerate(resultado['populacaoInicial']):
         print(f"  Indivíduo {i+1}: {ind}")
 
@@ -21,3 +22,5 @@ if __name__ == '__main__':
 
     print(f"\nMelhor Custo: {float(resultado['melhorCusto']):.2f}")
     print(f"Melhor Solução: {resultado['melhorSolucao']}")
+
+    visual.plot_caminho(mapa, resultado['melhorSolucao'])
