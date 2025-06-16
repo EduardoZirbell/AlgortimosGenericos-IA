@@ -12,6 +12,8 @@ class AlgoritmoGenetico:
     def executar(self):
         # Salva a população inicial
         pop_inicial = [ind.percurso.copy() for ind in self.pop.individuos]
+        self.pop.individuos.sort(key=lambda ind: ind.distancia)
+
         # Encontra o melhor indivíduo inicial
         melhor = min(self.pop.individuos, key=lambda ind: ind.distancia)
 
@@ -23,6 +25,7 @@ class AlgoritmoGenetico:
                 # Substitui o pior indivíduo pelo melhor da geração anterior
                 self.pop.individuos.sort(key=lambda ind: ind.distancia, reverse=True)
                 self.pop.individuos[0] = melhor_geracao
+                self.pop.individuos.sort(key=lambda ind: ind.distancia, reverse=False)
             else:
                 self.pop.cruzar()
             print(f"Geração {g + 1}: Melhor distância = {melhor.distancia:.2f}")
