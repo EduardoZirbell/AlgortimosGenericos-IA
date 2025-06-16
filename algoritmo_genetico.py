@@ -1,38 +1,45 @@
 from populacao import Populacao
 
 class AlgoritmoGenetico:
-    def __init__(self, cidade_map, tamanho_populacao=20, num_geracoes=1000):
-        self.cidade_map = cidade_map
-        self.tamanho_populacao = tamanho_populacao
-        self.num_geracoes = num_geracoes
-        self.populacao = Populacao(tamanho_populacao, cidade_map)
+    def __init__(self, mapa, tam_pop=20, geracoes=10000, elitismo=False):
+        # Inicializa o algoritmo genético com ou sem elitismo
+        self.mapa = mapa
+        self.tam_pop = tam_pop
+        self.geracoes = geracoes
+        self.elitismo = elitismo
+        self.pop = Populacao(tam_pop, mapa)
 
     def executar(self):
-        populacaoInicial = [ind.percurso.copy() for ind in self.populacao.individuos]
+        # Salva a população inicial
+        pop_inicial = [ind.percurso.copy() for ind in self.pop.individuos]
+        # Encontra o melhor indivíduo inicial
+        melhor = min(self.pop.individuos, key=lambda ind: ind.distancia)
 
-        for geracao in range(self.num_geracoes):
-            self.populacao.selecionar_melhores(self.tamanho_populacao // 2)
-            self.populacao.cruzar()
+        for g in range(self.geracoes):
+            if self.elitismo:
+                # Salva o melhor indivíduo da geração atual
+                melhor_geracao = min(self.pop.individuos, key=lambda ind: ind.distancia)
+                self.pop.cruzar()
+                # Substitui o pior indivíduo pelo melhor da geração anterior
+                self.pop.individuos.sort(key=lambda ind: ind.distancia, reverse=True)
+                self.pop.individuos[0] = melhor_geracao
+            else:
+                self.pop.cruzar()
+            print(f"Geração {g + 1}: Melhor distância = {melhor.distancia:.2f}")
 
-            melhor = min(self.populacao.individuos, key=lambda ind: ind.distancia)
-            print(f"Geração {geracao + 1}: Melhor distância = {melhor.distancia:.2f}")
+            melhor_geracao = min(self.pop.individuos, key=lambda ind: ind.distancia)
+            if melhor_geracao.distancia < melhor.distancia:
+                melhor = melhor_geracao
 
-            melhorFinal = None
-            menorDistancia = float('inf')
-            populacaoFinal = []
+        # Seleciona os 10 melhores indivíduos da população final
+        pop_final = [ind.percurso.copy() for ind in self.pop.individuos[:10]]
 
-        for individuo in self.populacao.individuos:
-            percurso = individuo.percurso.copy()
-            populacaoFinal.append(percurso)
-            if individuo.distancia < menorDistancia:
-                menorDistancia = individuo.distancia
-                melhorFinal = individuo
-
+        # Retorna os resultados convertendo para inteiros comuns
         return {
-            "tamanhoPopulacao": self.tamanho_populacao,
-            "populacaoInicial": populacaoInicial,
-            "populacaoFinal": populacaoFinal,
-            "melhorCusto": melhorFinal.distancia,
-            "melhorSolucao": melhorFinal.percurso
+            "tam_pop": self.tam_pop,
+            "pop_inicial": [[int(x) for x in ind] for ind in pop_inicial],
+            "pop_final": [[int(x) for x in ind] for ind in pop_final],
+            "melhor_dist": melhor.distancia,
+            "melhor_caminho": [int(x) for x in melhor.percurso]
         }
 
